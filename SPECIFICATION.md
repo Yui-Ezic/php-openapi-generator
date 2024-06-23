@@ -5,6 +5,7 @@ Features:
 - Rate limits
 - Caching
 - Conditional requests
+- Remote manifests repository
 
 DTO: 
 - Distinguish between required and nullable field
