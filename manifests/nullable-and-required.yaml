@@ -1,0 +1,47 @@
+openapi: 3.0.3
+info:
+  title: Security
+  description: Security
+  version: 1.0.0
+servers:
+  - url: 'https://example.com'
+paths:
+  '/resources/{id}':
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Basic authorization
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resource"
+
+components:
+  schemas:
+    Resource:
+      type: object
+      required:
+        - id
+        - required_not_nullable
+        - required_nullable
+      properties:
+        id:
+          type: string
+        required_not_nullable:
+          type: string
+          nullable: false
+        required_nullable:
+          type: string
+          nullable: true
+        not_required_not_nullable:
+          type: string
+          nullable: false
+        not_required_nullable:
+          type: string
+          nullable: true
