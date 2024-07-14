@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: Books api
+  description: API to get info about books
+  version: 1.0.0
+servers:
+  - url: 'https://example.com'
+paths:
+  '/books':
+    get:
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: Return list of books
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BooksList'
+  '/books/{id}':
+    get:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Return single book with specified id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+
+components:
+  schemas:
+    BooksList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Book'
+    Book:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+          format: double
+          nullable: true
+        released:
+          type: string
+          format: date
+          nullable: true
