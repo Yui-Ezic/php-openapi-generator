@@ -9,3 +9,9 @@ To generate all examples run
 ```bash
 make generate
 ```
+
+To generate with custom generator (php-custom):
+
+```bash
+make regenerate
+```

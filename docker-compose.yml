@@ -1,0 +1,10 @@
+services:
+  openapi-generator-cli:
+    build:
+      context: docker/openapi-generator-cli
+    volumes:
+      - ./:/local
+  maven:
+    image: maven:3.9.8
+    volumes:
+      - ./:/local
