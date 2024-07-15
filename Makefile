@@ -1,12 +1,22 @@
 generate-examples:
 	for generator in php php-nextgen java python ; do \
-        docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate -i /local/manifests/nullable-and-required.yaml -g $$generator -o /local/generated/$$generator/nullable-and-required ; \
+        docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
+			-i /local/manifests/nullable-and-required.yaml \
+			-g $$generator \
+			-o /local/generated/$$generator/nullable-and-required ; \
+		docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
+			-i /local/manifests/books.yaml \
+			-g $$generator \
+			-o /local/generated/$$generator/books ; \
     done
 
-regenerate: compile-generator run-generator
+regenerate: compile-generator clear-examples run-generator
 
 compile-generator:
 	docker-compose run -w /local/generators/php-custom maven mvn package
+
+clear-examples:
+	docker-compose run openapi-generator-cli rm -rf /local/examples/*
 
 run-generator:
 	docker-compose run openapi-generator-cli java \
@@ -14,7 +24,7 @@ run-generator:
 		org.openapitools.codegen.OpenAPIGenerator generate \
         -i /local/manifests/books.yaml \
         -g php-custom \
-        -o /local/generated/php-custom/books
+        -o /local/examples/books
 
 create-generator:
 	docker-compose run openapi-generator-cli meta -o /local/generators/php-custom -n php-custom -p com.yui.ezic.codegen

@@ -1,198 +1,214 @@
 package com.yui.ezic.codegen;
 
+import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
-import org.openapitools.codegen.model.*;
-import io.swagger.models.properties.*;
+import org.openapitools.codegen.languages.AbstractPhpCodegen;
+import org.openapitools.codegen.meta.GeneratorMetadata;
+import org.openapitools.codegen.meta.Stability;
+import org.openapitools.codegen.meta.features.*;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.ModelsMap;
+import org.openapitools.codegen.model.OperationMap;
+import org.openapitools.codegen.model.OperationsMap;
+import org.openapitools.codegen.utils.ModelUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
-public class PhpCustomGenerator extends DefaultCodegen implements CodegenConfig {
+public class PhpCustomGenerator extends AbstractPhpCodegen {
+    @SuppressWarnings("hiding")
+    private final Logger LOGGER = LoggerFactory.getLogger(PhpCustomGenerator.class);
 
-  // source folder where to write the files
-  protected String sourceFolder = "src";
-  protected String apiVersion = "1.0.0";
+    public PhpCustomGenerator() {
+        super();
 
-  /**
-   * Configures the type of generator.
-   *
-   * @return  the CodegenType for this generator
-   * @see     org.openapitools.codegen.CodegenType
-   */
-  public CodegenType getTag() {
-    return CodegenType.OTHER;
-  }
+        // override default src and test folders to comply PSD skeleton
+        setSrcBasePath("src");
+        setTestBasePath("tests");
 
-  /**
-   * Configures a friendly name for the generator.  This will be used by the generator
-   * to select the library with the -g flag.
-   *
-   * @return the friendly name for the generator
-   */
-  public String getName() {
-    return "php-custom";
-  }
+        // mark as beta so far
+        this.generatorMetadata = GeneratorMetadata.newBuilder(generatorMetadata)
+                .stability(Stability.BETA).build();
 
-  /**
-   * Provides an opportunity to inspect and modify operation data before the code is generated.
-   */
-  @Override
-  public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
+        modifyFeatureSet(features -> features
+                .includeDocumentationFeatures(DocumentationFeature.Readme)
+                .wireFormatFeatures(EnumSet.of(WireFormatFeature.JSON, WireFormatFeature.XML))
+                .securityFeatures(EnumSet.noneOf(SecurityFeature.class))
+                .excludeGlobalFeatures(
+                        GlobalFeature.XMLStructureDefinitions,
+                        GlobalFeature.Callbacks,
+                        GlobalFeature.LinkObjects,
+                        GlobalFeature.ParameterStyling
+                )
+                .excludeSchemaSupportFeatures(
+                        SchemaSupportFeature.Polymorphism
+                )
+        );
 
-    // to try debugging your code generator:
-    // set a break point on the next line.
-    // then debug the JUnit test called LaunchGeneratorInDebugger
+        // clear import mapping (from default generator) as php does not use it
+        // at the moment
+        importMapping.clear();
 
-    OperationsMap results = super.postProcessOperationsWithModels(objs, allModels);
+        setInvokerPackage("OpenAPI\\Client");
+        setApiPackage(getInvokerPackage() + "\\" + apiDirName);
+        setModelPackage(getInvokerPackage() + "\\" + modelDirName);
+        setPackageName("OpenAPIClient-php");
+        supportsInheritance = true;
+        setOutputDir("generated-code" + File.separator + "php");
+        modelTestTemplateFiles.put("model_test.mustache", ".php");
+        embeddedTemplateDir = templateDir = "php-nextgen";
 
-    OperationMap ops = results.getOperations();
-    List<CodegenOperation> opList = ops.getOperation();
+        // default HIDE_GENERATION_TIMESTAMP to true
+        hideGenerationTimestamp = Boolean.TRUE;
 
-    // iterate over the operation and perhaps modify something
-    for(CodegenOperation co : opList){
-      // example:
-      // co.httpMethod = co.httpMethod.toLowerCase();
+        // provide primitives to mustache template
+        List sortedLanguageSpecificPrimitives = new ArrayList(languageSpecificPrimitives);
+        Collections.sort(sortedLanguageSpecificPrimitives);
+        String primitives = "'" + StringUtils.join(sortedLanguageSpecificPrimitives, "', '") + "'";
+        additionalProperties.put("primitives", primitives);
+
+        cliOptions.add(new CliOption(CodegenConstants.HIDE_GENERATION_TIMESTAMP, CodegenConstants.ALLOW_UNICODE_IDENTIFIERS_DESC)
+                .defaultValue(Boolean.TRUE.toString()));
     }
 
-    return results;
-  }
+    @Override
+    public CodegenType getTag() {
+        return CodegenType.CLIENT;
+    }
 
-  /**
-   * Returns human-friendly help for the generator.  Provide the consumer with help
-   * tips, parameters here
-   *
-   * @return A string value for the help message
-   */
-  public String getHelp() {
-    return "Generates a php-custom client library.";
-  }
+    @Override
+    public String getName() {
+        return "php-custom";
+    }
 
-  public PhpCustomGenerator() {
-    super();
+    @Override
+    public String getHelp() {
+        return "Generates a PHP client library (beta).";
+    }
 
-    // set the output folder here
-    outputFolder = "generated-code/php-custom";
+    @Override
+    public void processOpts() {
+        super.processOpts();
 
-    /**
-     * Models.  You can write model files using the modelTemplateFiles map.
-     * if you want to create one template for file, you can do so here.
-     * for multiple files for model, just put another entry in the `modelTemplateFiles` with
-     * a different extension
-     */
-    modelTemplateFiles.put(
-      "model.mustache", // the template to use
-      ".sample");       // the extension for each file to write
+        supportingFiles.add(new SupportingFile("ApiException.mustache", toSrcPath(invokerPackage, srcBasePath), "ApiException.php"));
+        supportingFiles.add(new SupportingFile("Configuration.mustache", toSrcPath(invokerPackage, srcBasePath), "Configuration.php"));
+        supportingFiles.add(new SupportingFile("ObjectSerializer.mustache", toSrcPath(invokerPackage, srcBasePath), "ObjectSerializer.php"));
+        supportingFiles.add(new SupportingFile("ModelInterface.mustache", toSrcPath(modelPackage, srcBasePath), "ModelInterface.php"));
+        supportingFiles.add(new SupportingFile("HeaderSelector.mustache", toSrcPath(invokerPackage, srcBasePath), "HeaderSelector.php"));
+        supportingFiles.add(new SupportingFile("composer.mustache", "", "composer.json"));
+        supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
+        supportingFiles.add(new SupportingFile("phpunit.xml.mustache", "", "phpunit.xml.dist"));
+        supportingFiles.add(new SupportingFile(".travis.yml", "", ".travis.yml"));
+        supportingFiles.add(new SupportingFile(".php-cs-fixer.dist.php", "", ".php-cs-fixer.dist.php"));
+        supportingFiles.add(new SupportingFile(".phplint.mustache", "", ".phplint.yml"));
+        supportingFiles.add(new SupportingFile("git_push.sh.mustache", "", "git_push.sh"));
+    }
 
-    /**
-     * Api classes.  You can write classes for each Api file with the apiTemplateFiles map.
-     * as with models, add multiple entries with different extensions for multiple files per
-     * class
-     */
-    apiTemplateFiles.put(
-      "api.mustache",   // the template to use
-      ".sample");       // the extension for each file to write
+    @Override
+    public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
+        final Map<String, ModelsMap> processed = super.postProcessAllModels(objs);
 
-    /**
-     * Template Location.  This is the location which templates will be read from.  The generator
-     * will use the resource stream to attempt to read the templates.
-     */
-    templateDir = "php-custom";
+        for (Map.Entry<String, ModelsMap> entry : processed.entrySet()) {
+            entry.setValue(postProcessModelsMap(entry.getValue()));
+        }
 
-    /**
-     * Api Package.  Optional, if needed, this can be used in templates
-     */
-    apiPackage = "org.openapitools.api";
+        return processed;
+    }
 
-    /**
-     * Model Package.  Optional, if needed, this can be used in templates
-     */
-    modelPackage = "org.openapitools.model";
+    private ModelsMap postProcessModelsMap(ModelsMap objs) {
+        for (ModelMap m : objs.getModels()) {
+            CodegenModel model = m.getModel();
 
-    /**
-     * Reserved words.  Override this with reserved words specific to your language
-     */
-    reservedWords = new HashSet<String> (
-      Arrays.asList(
-        "sample1",  // replace with static values
-        "sample2")
-    );
+            for (CodegenProperty prop : model.vars) {
+                String propType;
+                if (prop.isArray || prop.isMap) {
+                    propType = "array";
+                } else {
+                    propType = prop.dataType;
+                }
 
-    /**
-     * Additional Properties.  These values can be passed to the templates and
-     * are available in models, apis, and supporting files
-     */
-    additionalProperties.put("apiVersion", apiVersion);
+                if ((!prop.required || prop.isNullable) && !propType.equals("mixed")) { // optional or nullable but not mixed
+                    propType = "?" + propType;
+                }
 
-    /**
-     * Supporting Files.  You can write single files for the generator with the
-     * entire object tree available.  If the input file has a suffix of `.mustache
-     * it will be processed by the template engine.  Otherwise, it will be copied
-     */
-    supportingFiles.add(new SupportingFile("myFile.mustache",   // the input template or file
-      "",                                                       // the destination folder, relative `outputFolder`
-      "myFile.sample")                                          // the output file
-    );
+                prop.vendorExtensions.putIfAbsent("x-php-prop-type", propType);
+            }
 
-    /**
-     * Language Specific Primitives.  These types will not trigger imports by
-     * the client generator
-     */
-    languageSpecificPrimitives = new HashSet<String>(
-      Arrays.asList(
-        "Type1",      // replace these with your types
-        "Type2")
-    );
-  }
+            if (model.isEnum) {
+                for (Map<String, Object> enumVars : (List<Map<String, Object>>) model.getAllowableValues().get("enumVars")) {
+                    if ((Boolean) enumVars.get("isString")) {
+                        model.vendorExtensions.putIfAbsent("x-php-enum-type", "string");
+                    } else {
+                        model.vendorExtensions.putIfAbsent("x-php-enum-type", "int");
+                    }
+                }
+            }
+        }
+        return objs;
+    }
 
-  /**
-   * Escapes a reserved word as defined in the `reservedWords` array. Handle escaping
-   * those terms here.  This logic is only called if a variable matches the reserved words
-   *
-   * @return the escaped term
-   */
-  @Override
-  public String escapeReservedWord(String name) {
-    return "_" + name;  // add an underscore to the name
-  }
+    @Override
+    public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
+        objs = super.postProcessOperationsWithModels(objs, allModels);
+        OperationMap operations = objs.getOperations();
+        for (CodegenOperation operation : operations.getOperation()) {
+            if (operation.returnType == null) {
+                operation.vendorExtensions.putIfAbsent("x-php-return-type", "void");
+            } else {
+                if (operation.returnProperty.isContainer) { // array or map
+                    operation.vendorExtensions.putIfAbsent("x-php-return-type", "array");
+                } else {
+                    operation.vendorExtensions.putIfAbsent("x-php-return-type", operation.returnType);
+                }
+            }
 
-  /**
-   * Location to write model files.  You can use the modelPackage() as defined when the class is
-   * instantiated
-   */
-  public String modelFileFolder() {
-    return outputFolder + "/" + sourceFolder + "/" + modelPackage().replace('.', File.separatorChar);
-  }
+            for (CodegenParameter param : operation.allParams) {
+                if (param.isArray || param.isMap) {
+                    param.vendorExtensions.putIfAbsent("x-php-param-type", "array");
+                } else {
+                    param.vendorExtensions.putIfAbsent("x-php-param-type", param.dataType);
+                }
+            }
+        }
 
-  /**
-   * Location to write api files.  You can use the apiPackage() as defined when the class is
-   * instantiated
-   */
-  @Override
-  public String apiFileFolder() {
-    return outputFolder + "/" + sourceFolder + "/" + apiPackage().replace('.', File.separatorChar);
-  }
+        return objs;
+    }
 
-  /**
-   * override with any special text escaping logic to handle unsafe
-   * characters so as to avoid code injection
-   *
-   * @param input String to be cleaned up
-   * @return string with unsafe characters removed or escaped
-   */
-  @Override
-  public String escapeUnsafeCharacters(String input) {
-    //TODO: check that this logic is safe to escape unsafe characters to avoid code injection
-    return input;
-  }
+    @Override
+    public String toDefaultValue(CodegenProperty codegenProperty, Schema schema) {
 
-  /**
-   * Escape single and/or double quote to avoid code injection
-   *
-   * @param input String to be cleaned up
-   * @return string with quotation mark removed or escaped
-   */
-  public String escapeQuotationMark(String input) {
-    //TODO: check that this logic is safe to escape quotation mark to avoid code injection
-    return input.replace("\"", "\\\"");
-  }
+        if (codegenProperty.isArray) {
+            schema = ModelUtils.getReferencedSchema(this.openAPI, schema);
+
+            if (schema.getDefault() != null) { // array schema has default value
+                return "[" + schema.getDefault().toString() + "]";
+            } else if (schema.getItems().getDefault() != null) { // array item schema has default value
+                return "[" + toDefaultValue(schema.getItems()) + "]";
+            } else {
+                return null;
+            }
+        }
+        return super.toDefaultValue(codegenProperty, schema);
+    }
+
+    @Override
+    public String toDefaultParameterValue(CodegenProperty codegenProperty, Schema<?> schema) {
+        return toDefaultValue(codegenProperty, schema);
+    }
+
+    @Override
+    public void setParameterExampleValue(CodegenParameter p) {
+        if (p.isArray && p.items.defaultValue != null) {
+            p.example = p.defaultValue;
+        } else {
+            super.setParameterExampleValue(p);
+        }
+    }
 }
