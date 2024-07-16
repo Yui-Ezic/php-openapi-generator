@@ -8,3 +8,4 @@ services:
     image: maven:3.9.8
     volumes:
       - ./:/local
+      - ./cache/maven/.m2:/root/.m2/repository
