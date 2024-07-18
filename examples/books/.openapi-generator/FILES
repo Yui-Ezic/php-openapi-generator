@@ -1,7 +1,4 @@
 .gitignore
-.php-cs-fixer.dist.php
-.phplint.yml
-.travis.yml
 README.md
 composer.json
 docs/Api/DefaultApi.md
