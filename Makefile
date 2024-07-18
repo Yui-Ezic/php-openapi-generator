@@ -11,6 +11,7 @@ generate-examples:
     done
 
 regenerate: compile-generator clear-examples run-generator
+regenerate-debug: compile-generator clear-examples run-generator-debug
 
 compile-generator:
 	docker-compose run -w /local/generators/php-custom maven mvn package
@@ -25,6 +26,15 @@ run-generator:
         -i /local/manifests/books.yaml \
         -g php-custom \
         -o /local/examples/books
+
+run-generator-debug:
+	docker-compose run openapi-generator-cli java \
+		-cp /local/generators/php-custom/target/php-custom-openapi-generator-1.0.0.jar:/opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar \
+		org.openapitools.codegen.OpenAPIGenerator generate \
+        -i /local/manifests/books.yaml \
+        -g php-custom \
+        -o /local/examples/books \
+        --global-property debugModels,debugOperations
 
 create-generator:
 	docker-compose run openapi-generator-cli meta -o /local/generators/php-custom -n php-custom -p com.yui.ezic.codegen
