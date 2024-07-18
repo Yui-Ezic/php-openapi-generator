@@ -63,7 +63,7 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
         supportsInheritance = true;
         setOutputDir("generated-code" + File.separator + "php");
         modelTestTemplateFiles.put("model_test.mustache", ".php");
-        embeddedTemplateDir = templateDir = "php-nextgen";
+        embeddedTemplateDir = templateDir = "php-custom";
 
         // default HIDE_GENERATION_TIMESTAMP to true
         hideGenerationTimestamp = Boolean.TRUE;
