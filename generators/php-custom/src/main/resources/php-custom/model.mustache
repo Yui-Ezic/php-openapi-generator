@@ -19,16 +19,6 @@
  */
 
 namespace {{modelPackage}};
-{{^isEnum}}
-{{^parentSchema}}
-
-use ArrayAccess;
-use JsonSerializable;
-use InvalidArgumentException;
-use ReturnTypeWillChange;
-use {{invokerPackage}}\ObjectSerializer;
-{{/parentSchema}}
-{{/isEnum}}
 
 /**
  * {{classname}} Class Doc Comment
