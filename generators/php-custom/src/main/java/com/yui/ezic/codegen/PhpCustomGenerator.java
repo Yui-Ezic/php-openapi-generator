@@ -177,11 +177,11 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                         psalmType = "object";
                         break;
                     default:
-                        psalmType = "unknown";
+                        psalmType = null;
                         break;
                 }
 
-                if (prop.isNullable) {
+                if (psalmType != null && prop.isNullable) {
                     psalmType += "|null";
                 }
 
