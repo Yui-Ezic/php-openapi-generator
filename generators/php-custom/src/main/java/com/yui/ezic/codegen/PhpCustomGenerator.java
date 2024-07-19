@@ -165,7 +165,6 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                     case "integer":
                         String minimum = prop.minimum == null ? "min" : prop.exclusiveMinimum ? prop.minimum + 1 : prop.minimum;
                         String maximum = prop.maximum == null ? "max" : prop.exclusiveMaximum ? prop.maximum + 1 : prop.maximum;
-                        // TODO: fix generating "&lt" and "&gt" instead of "<" and ">"
                         psalmType = "int<" + minimum + ", " + maximum + ">";
                         break;
                     case "boolean":

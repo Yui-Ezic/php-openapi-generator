@@ -2,7 +2,7 @@ class {{classname}}
 {
     {{#vars}}
         /**
-         * @var {{vendorExtensions.x-php-psalm-type}}
+         * @var {{{vendorExtensions.x-php-psalm-type}}}
          */
         public readonly {{#isNullable}}?{{/isNullable}}{{dataType}} ${{name}};
     {{/vars}}

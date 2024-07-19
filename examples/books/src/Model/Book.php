@@ -46,7 +46,7 @@ class Book
          */
         public readonly string $name;
         /**
-         * @var int&lt;0, max&gt;|null
+         * @var int<0, max>|null
          */
         public readonly ?int $pages;
         /**
