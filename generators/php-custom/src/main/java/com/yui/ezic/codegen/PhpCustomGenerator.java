@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -137,76 +138,10 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
 
                 prop.vendorExtensions.putIfAbsent("x-php-prop-type", propType);
 
-                // Resolve psalm type
-                String psalmType;
-                Boolean psalmTypeMoreSpecificThanNative;
-                switch (prop.openApiType) {
-                    case "string":
-                        if (prop.dataFormat != null) {
-                            switch (prop.dataFormat) {
-                                case "date":
-                                case "dateTime":
-                                    psalmType = "\\DateTime";
-                                    psalmTypeMoreSpecificThanNative = false;
-                                    break;
-                                default:
-                                    psalmType = null;
-                                    psalmTypeMoreSpecificThanNative = false;
-                                    break;
-                            }
-                        } else {
-                            psalmType = null;
-                            psalmTypeMoreSpecificThanNative = false;
-                        }
-
-                        if (psalmType == null) {
-                            if (prop.minLength != null && prop.minLength > 0) {
-                                psalmType = "non-empty-string";
-                                psalmTypeMoreSpecificThanNative = true;
-                            } else {
-                                psalmType = "string";
-                                psalmTypeMoreSpecificThanNative = false;
-                            }
-                        }
-                        break;
-                    case "number":
-                        psalmType = "float";
-                        psalmTypeMoreSpecificThanNative = false;
-                        break;
-                    case "integer":
-                        String minimum = prop.minimum == null ? "min" : prop.exclusiveMinimum ? prop.minimum + 1 : prop.minimum;
-                        String maximum = prop.maximum == null ? "max" : prop.exclusiveMaximum ? prop.maximum + 1 : prop.maximum;
-                        psalmType = "int<" + minimum + ", " + maximum + ">";
-                        if (minimum == "min" && maximum == "max") {
-                            psalmTypeMoreSpecificThanNative = false;
-                        } else {
-                            psalmTypeMoreSpecificThanNative = true;
-                        }
-                        break;
-                    case "boolean":
-                        psalmType = "bool";
-                        psalmTypeMoreSpecificThanNative = false;
-                        break;
-                    case "array":
-                        psalmType = "array";
-                        psalmTypeMoreSpecificThanNative = false;
-                        break;
-                    case "object":
-                        psalmType = "object";
-                        psalmTypeMoreSpecificThanNative = false;
-                        break;
-                    default:
-                        psalmType = null;
-                        psalmTypeMoreSpecificThanNative = false;
-                        break;
+                Map<String, Object> resolvedPsalmType = resolvePsalmType(prop);
+                for (Map.Entry<String, Object> entry : resolvedPsalmType.entrySet()) {
+                    prop.vendorExtensions.putIfAbsent(entry.getKey(), entry.getValue());
                 }
-
-                if (psalmType != null && prop.isNullable) {
-                    psalmType += "|null";
-                }
-
-                prop.vendorExtensions.put("x-php-psalm-type", psalmType);
-                prop.vendorExtensions.put("x-php-psalm-type-more-specific-than-native", psalmTypeMoreSpecificThanNative);
             }
 
             if (model.isEnum) {
@@ -221,6 +156,83 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
         }
         return objs;
     }
+
+    private Map<String, Object> resolvePsalmType(CodegenProperty prop) {
+        Map<String, Object> result = new HashMap<>();
+
+        String psalmType;
+        Boolean psalmTypeMoreSpecificThanNative;
+        
+        switch (prop.openApiType) {
+            case "string":
+                if (prop.dataFormat != null) {
+                    switch (prop.dataFormat) {
+                        case "date":
+                        case "dateTime":
+                            psalmType = "\\DateTime";
+                            psalmTypeMoreSpecificThanNative = false;
+                            break;
+                        default:
+                            psalmType = null;
+                            psalmTypeMoreSpecificThanNative = false;
+                            break;
+                    }
+                } else {
+                    psalmType = null;
+                    psalmTypeMoreSpecificThanNative = false;
+                }
+
+                if (psalmType == null) {
+                    if (prop.minLength != null && prop.minLength > 0) {
+                        psalmType = "non-empty-string";
+                        psalmTypeMoreSpecificThanNative = true;
+                    } else {
+                        psalmType = "string";
+                        psalmTypeMoreSpecificThanNative = false;
+                    }
+                }
+                break;
+            case "number":
+                psalmType = "float";
+                psalmTypeMoreSpecificThanNative = false;
+                break;
+            case "integer":
+                String minimum = prop.minimum == null ? "min" : prop.exclusiveMinimum ? prop.minimum + 1 : prop.minimum;
+                String maximum = prop.maximum == null ? "max" : prop.exclusiveMaximum ? prop.maximum + 1 : prop.maximum;
+                psalmType = "int<" + minimum + ", " + maximum + ">";
+                if (minimum == "min" && maximum == "max") {
+                    psalmTypeMoreSpecificThanNative = false;
+                } else {
+                    psalmTypeMoreSpecificThanNative = true;
+                }
+                break;
+            case "boolean":
+                psalmType = "bool";
+                psalmTypeMoreSpecificThanNative = false;
+                break;
+            case "array":
+                psalmType = "array";
+                psalmTypeMoreSpecificThanNative = false;
+                break;
+            case "object":
+                psalmType = "object";
+                psalmTypeMoreSpecificThanNative = false;
+                break;
+            default:
+                psalmType = null;
+                psalmTypeMoreSpecificThanNative = false;
+                break;
+        }
+
+        if (psalmType != null && prop.isNullable) {
+            psalmType += "|null";
+        }
+
+        result.put("x-php-psalm-type", psalmType);
+        result.put("x-php-psalm-type-more-specific-than-native", psalmTypeMoreSpecificThanNative);
+
+        return result;
+    } 
 
     @Override
     public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
