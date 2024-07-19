@@ -182,6 +182,10 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                         break;
                 }
 
+                if (prop.isNullable) {
+                    psalmType += "|null";
+                }
+
                 prop.vendorExtensions.putIfAbsent("x-php-psalm-type", psalmType);
             }
 

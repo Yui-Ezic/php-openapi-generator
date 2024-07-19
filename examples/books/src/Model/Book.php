@@ -46,15 +46,15 @@ class Book
          */
         public readonly string $name;
         /**
-         * @var int&lt;0, max&gt;
+         * @var int&lt;0, max&gt;|null
          */
         public readonly ?int $pages;
         /**
-         * @var float
+         * @var float|null
          */
         public readonly ?float $price;
         /**
-         * @var \DateTime
+         * @var \DateTime|null
          */
         public readonly ?\DateTime $released;
 }
