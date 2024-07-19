@@ -136,6 +136,7 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                 }
 
                 prop.vendorExtensions.putIfAbsent("x-php-prop-type", propType);
+                prop.vendorExtensions.putIfAbsent("x-php-psalm-type", "unknown");
             }
 
             if (model.isEnum) {
