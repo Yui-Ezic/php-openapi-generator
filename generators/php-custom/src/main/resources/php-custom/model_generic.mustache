@@ -1,11 +1,13 @@
 class {{classname}}
 {
     {{#vars}}
+        {{#vendorExtensions.x-php-psalm-type-more-specific-than-native}}
         {{#vendorExtensions.x-php-psalm-type}}
         /**
          * @var {{{vendorExtensions.x-php-psalm-type}}}
          */
-        {{/vendorExtensions.x-php-psalm-type}} 
+        {{/vendorExtensions.x-php-psalm-type}}
+        {{/vendorExtensions.x-php-psalm-type-more-specific-than-native}}
         public readonly {{#isNullable}}?{{/isNullable}}{{dataType}} ${{name}};
     {{/vars}}
 }

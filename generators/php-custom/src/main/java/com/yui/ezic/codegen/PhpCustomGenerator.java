@@ -139,6 +139,7 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
 
                 // Resolve psalm type
                 String psalmType;
+                Boolean psalmTypeMoreSpecificThanNative;
                 switch (prop.openApiType) {
                     case "string":
                         if (prop.dataFormat != null) {
@@ -146,38 +147,57 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                                 case "date":
                                 case "dateTime":
                                     psalmType = "\\DateTime";
+                                    psalmTypeMoreSpecificThanNative = false;
                                     break;
                                 default:
                                     psalmType = null;
+                                    psalmTypeMoreSpecificThanNative = false;
                                     break;
                             }
                         } else {
                             psalmType = null;
+                            psalmTypeMoreSpecificThanNative = false;
                         }
 
                         if (psalmType == null) {
-                            psalmType = prop.minLength != null && prop.minLength > 0 ? "non-empty-string" : "string";
+                            if (prop.minLength != null && prop.minLength > 0) {
+                                psalmType = "non-empty-string";
+                                psalmTypeMoreSpecificThanNative = true;
+                            } else {
+                                psalmType = "string";
+                                psalmTypeMoreSpecificThanNative = false;
+                            }
                         }
                         break;
                     case "number":
                         psalmType = "float";
+                        psalmTypeMoreSpecificThanNative = false;
                         break;
                     case "integer":
                         String minimum = prop.minimum == null ? "min" : prop.exclusiveMinimum ? prop.minimum + 1 : prop.minimum;
                         String maximum = prop.maximum == null ? "max" : prop.exclusiveMaximum ? prop.maximum + 1 : prop.maximum;
                         psalmType = "int<" + minimum + ", " + maximum + ">";
+                        if (minimum == "min" && maximum == "max") {
+                            psalmTypeMoreSpecificThanNative = false;
+                        } else {
+                            psalmTypeMoreSpecificThanNative = true;
+                        }
                         break;
                     case "boolean":
                         psalmType = "bool";
+                        psalmTypeMoreSpecificThanNative = false;
                         break;
                     case "array":
                         psalmType = "array";
+                        psalmTypeMoreSpecificThanNative = false;
                         break;
                     case "object":
                         psalmType = "object";
+                        psalmTypeMoreSpecificThanNative = false;
                         break;
                     default:
                         psalmType = null;
+                        psalmTypeMoreSpecificThanNative = false;
                         break;
                 }
 
@@ -185,7 +205,8 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                     psalmType += "|null";
                 }
 
-                prop.vendorExtensions.putIfAbsent("x-php-psalm-type", psalmType);
+                prop.vendorExtensions.put("x-php-psalm-type", psalmType);
+                prop.vendorExtensions.put("x-php-psalm-type-more-specific-than-native", psalmTypeMoreSpecificThanNative);
             }
 
             if (model.isEnum) {
