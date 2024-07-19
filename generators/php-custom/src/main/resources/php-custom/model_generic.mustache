@@ -8,6 +8,6 @@ class {{classname}}
          */
         {{/vendorExtensions.x-php-psalm-type}}
         {{/vendorExtensions.x-php-psalm-type-more-specific-than-native}}
-        public readonly {{#isNullable}}?{{/isNullable}}{{dataType}} ${{name}};
+        public readonly {{#isNullable}}?{{/isNullable}}{{baseType}} ${{name}};
     {{/vars}}
 }
