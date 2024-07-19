@@ -2,6 +2,7 @@
 README.md
 composer.json
 docs/Api/DefaultApi.md
+docs/Model/Author.md
 docs/Model/Book.md
 git_push.sh
 phpunit.xml.dist
@@ -9,6 +10,7 @@ src/Api/DefaultApi.php
 src/ApiException.php
 src/Configuration.php
 src/HeaderSelector.php
+src/Model/Author.php
 src/Model/Book.php
 src/Model/ModelInterface.php
 src/ObjectSerializer.php

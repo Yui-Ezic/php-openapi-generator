@@ -77,6 +77,7 @@ Class | Method | HTTP request | Description
 
 ## Models
 
+- [Author](docs/Model/Author.md)
 - [Book](docs/Model/Book.md)
 
 ## Authorization

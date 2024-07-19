@@ -1,6 +1,6 @@
 <?php
 /**
- * Book
+ * Author
  *
  * PHP version 8.1
  *
@@ -28,26 +28,18 @@
 namespace OpenAPI\Client\Model;
 
 /**
- * Book Class Doc Comment
+ * Author Class Doc Comment
  *
  * @package  OpenAPI\Client
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
  */
-class Book
+class Author
 {
         public readonly string $id;
         /**
          * @var non-empty-string
          */
         public readonly string $name;
-        /**
-         * @var int<0, max>|null
-         */
-        public readonly ?int $pages;
-        public readonly ?float $price;
-        public readonly array $images;
-        public readonly Author $author;
-        public readonly ?\DateTime $released;
 }
 
