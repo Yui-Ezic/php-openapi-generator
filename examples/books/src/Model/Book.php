@@ -38,19 +38,23 @@ namespace OpenAPI\Client\Model;
 class Book
 {
         /**
-         * @var unknown
+         * @var string
          */
         public readonly string $id;
         /**
-         * @var unknown
+         * @var non-empty-string
          */
         public readonly string $name;
         /**
-         * @var unknown
+         * @var int&lt;0, max&gt;
+         */
+        public readonly ?int $pages;
+        /**
+         * @var float
          */
         public readonly ?float $price;
         /**
-         * @var unknown
+         * @var \DateTime
          */
         public readonly ?\DateTime $released;
 }

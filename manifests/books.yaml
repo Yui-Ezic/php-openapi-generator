@@ -58,6 +58,12 @@ components:
           type: string
         name:
           type: string
+          minLength: 2
+          maxLength: 255
+        pages:
+          type: integer
+          minimum: 0
+          nullable: true
         price:
           type: number
           format: double

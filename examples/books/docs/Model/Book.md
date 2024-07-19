@@ -6,6 +6,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  |
 **name** | **string** |  |
+**pages** | **int** |  | [optional]
 **price** | **float** |  | [optional]
 **released** | **\DateTime** |  | [optional]
 

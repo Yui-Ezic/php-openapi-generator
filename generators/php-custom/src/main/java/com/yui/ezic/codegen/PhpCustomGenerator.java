@@ -136,7 +136,53 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                 }
 
                 prop.vendorExtensions.putIfAbsent("x-php-prop-type", propType);
-                prop.vendorExtensions.putIfAbsent("x-php-psalm-type", "unknown");
+
+                // Resolve psalm type
+                String psalmType;
+                switch (prop.openApiType) {
+                    case "string":
+                        if (prop.dataFormat != null) {
+                            switch (prop.dataFormat) {
+                                case "date":
+                                case "dateTime":
+                                    psalmType = "\\DateTime";
+                                    break;
+                                default:
+                                    psalmType = null;
+                                    break;
+                            }
+                        } else {
+                            psalmType = null;
+                        }
+
+                        if (psalmType == null) {
+                            psalmType = prop.minLength != null && prop.minLength > 0 ? "non-empty-string" : "string";
+                        }
+                        break;
+                    case "number":
+                        psalmType = "float";
+                        break;
+                    case "integer":
+                        String minimum = prop.minimum == null ? "min" : prop.exclusiveMinimum ? prop.minimum + 1 : prop.minimum;
+                        String maximum = prop.maximum == null ? "max" : prop.exclusiveMaximum ? prop.maximum + 1 : prop.maximum;
+                        // TODO: fix generating "&lt" and "&gt" instead of "<" and ">"
+                        psalmType = "int<" + minimum + ", " + maximum + ">";
+                        break;
+                    case "boolean":
+                        psalmType = "bool";
+                        break;
+                    case "array":
+                        psalmType = "array";
+                        break;
+                    case "object":
+                        psalmType = "object";
+                        break;
+                    default:
+                        psalmType = "unknown";
+                        break;
+                }
+
+                prop.vendorExtensions.putIfAbsent("x-php-psalm-type", psalmType);
             }
 
             if (model.isEnum) {
