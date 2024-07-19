@@ -33,7 +33,6 @@ namespace OpenAPI\Client\Model;
  * @package  OpenAPI\Client
  * @author   OpenAPI Generator team
  * @link     https://openapi-generator.tech
- * @implements ArrayAccess<string, mixed>
  */
 class Book
 {
@@ -58,5 +57,4 @@ class Book
          */
         public readonly ?\DateTime $released;
 }
-
 
