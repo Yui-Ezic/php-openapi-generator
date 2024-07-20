@@ -9,12 +9,8 @@ git_push.sh
 phpunit.xml.dist
 src/Api/DefaultApi.php
 src/ApiException.php
-src/Configuration.php
-src/HeaderSelector.php
 src/Model/Author.php
 src/Model/Book.php
-src/Model/ModelInterface.php
-src/ObjectSerializer.php
 tests/Api/DefaultApiTest.php
 tests/Model/AuthorTest.php
 tests/Model/BookTest.php

@@ -96,9 +96,36 @@ class BookTest extends TestCase
     }
 
     /**
+     * Test attribute "pages"
+     */
+    public function testPropertyPages()
+    {
+        // TODO: implement
+        self::markTestIncomplete('Not implemented');
+    }
+
+    /**
      * Test attribute "price"
      */
     public function testPropertyPrice()
+    {
+        // TODO: implement
+        self::markTestIncomplete('Not implemented');
+    }
+
+    /**
+     * Test attribute "images"
+     */
+    public function testPropertyImages()
+    {
+        // TODO: implement
+        self::markTestIncomplete('Not implemented');
+    }
+
+    /**
+     * Test attribute "author"
+     */
+    public function testPropertyAuthor()
     {
         // TODO: implement
         self::markTestIncomplete('Not implemented');
