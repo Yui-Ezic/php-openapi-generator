@@ -1,4 +1,5 @@
 .gitignore
+.openapi-generator-ignore
 README.md
 composer.json
 docs/Api/DefaultApi.md
@@ -14,3 +15,6 @@ src/Model/Author.php
 src/Model/Book.php
 src/Model/ModelInterface.php
 src/ObjectSerializer.php
+tests/Api/DefaultApiTest.php
+tests/Model/AuthorTest.php
+tests/Model/BookTest.php

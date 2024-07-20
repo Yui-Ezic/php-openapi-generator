@@ -17,7 +17,7 @@ compile-generator:
 	docker-compose run -w /local/generators/php-custom maven mvn package
 
 clear-examples:
-	docker-compose run openapi-generator-cli rm -rf /local/examples/*
+	docker-compose run openapi-generator-cli rm -rf /local/examples
 
 run-generator:
 	docker-compose run openapi-generator-cli java \
