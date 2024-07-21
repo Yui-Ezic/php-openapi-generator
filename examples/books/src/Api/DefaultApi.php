@@ -20,12 +20,12 @@ class DefaultApi
      * @param  int|null $offset The number of items to skip before starting to collect the result set (optional)
      * @param  int|null $limit The numbers of items to return (optional)
      *
-     * @return \OpenAPI\Client\Model\Book[]
+     * @return \OpenAPI\Client\Model\BooksListResponse
      */
     public function booksGet(
         ?int $offset = null,
         ?int $limit = null,
-    ): array
+    ): \OpenAPI\Client\Model\BooksListResponse
     {
         throw new \Exception('Opeation booksGet not implemented');
     }

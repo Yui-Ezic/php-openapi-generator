@@ -7,6 +7,7 @@ docs/Model/Author.md
 docs/Model/Book.md
 docs/Model/BooksGETParameterData.md
 docs/Model/BooksIdGETParameterData.md
+docs/Model/BooksListResponse.md
 docs/Model/Collection.md
 docs/Model/Collection1.md
 git_push.sh
@@ -17,6 +18,7 @@ src/Model/Author.php
 src/Model/Book.php
 src/Model/BooksGETParameterData.php
 src/Model/BooksIdGETParameterData.php
+src/Model/BooksListResponse.php
 src/Model/Collection.php
 src/Model/Collection1.php
 tests/Api/DefaultApiTest.php
@@ -24,5 +26,6 @@ tests/Model/AuthorTest.php
 tests/Model/BookTest.php
 tests/Model/BooksGETParameterDataTest.php
 tests/Model/BooksIdGETParameterDataTest.php
+tests/Model/BooksListResponseTest.php
 tests/Model/Collection1Test.php
 tests/Model/CollectionTest.php

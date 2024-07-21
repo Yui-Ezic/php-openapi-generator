@@ -11,7 +11,7 @@ All URIs are relative to https://example.com, except if the operation defines an
 ## `booksGet()`
 
 ```php
-booksGet($offset, $limit): \OpenAPI\Client\Model\Book[]
+booksGet($offset, $limit): \OpenAPI\Client\Model\BooksListResponse
 ```
 
 
@@ -49,7 +49,7 @@ try {
 
 ### Return type
 
-[**\OpenAPI\Client\Model\Book[]**](../Model/Book.md)
+[**\OpenAPI\Client\Model\BooksListResponse**](../Model/BooksListResponse.md)
 
 ### Authorization
 

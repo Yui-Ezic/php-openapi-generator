@@ -81,6 +81,7 @@ Class | Method | HTTP request | Description
 - [Book](docs/Model/Book.md)
 - [BooksGETParameterData](docs/Model/BooksGETParameterData.md)
 - [BooksIdGETParameterData](docs/Model/BooksIdGETParameterData.md)
+- [BooksListResponse](docs/Model/BooksListResponse.md)
 - [Collection](docs/Model/Collection.md)
 - [Collection1](docs/Model/Collection1.md)
 
