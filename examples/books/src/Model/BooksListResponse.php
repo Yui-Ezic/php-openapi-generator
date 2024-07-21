@@ -26,6 +26,9 @@ namespace OpenAPI\Client\Model;
  */
 class BooksListResponse
 {
+        /**
+         * @var list<Book>
+         */
         public readonly array $data;
 }
 

@@ -32,10 +32,13 @@ class Book
          */
         public readonly string $name;
         /**
-         * @var int<0, max>|null
+         * @var int<0, max>
          */
         public readonly ?int $pages;
         public readonly ?float $price;
+        /**
+         * @var list<string>
+         */
         public readonly array $images;
         public readonly Author $author;
         public readonly ?\DateTime $released;

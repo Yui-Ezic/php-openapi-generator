@@ -26,6 +26,9 @@ namespace OpenAPI\Client\Model;
  */
 class Collection1
 {
+        /**
+         * @var list<Book>
+         */
         public readonly array $inner;
 }
 

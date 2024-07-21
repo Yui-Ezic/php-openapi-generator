@@ -187,6 +187,8 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
         Map<String, Object> result = new HashMap<>();
 
         String psalmType;
+        // Relative to Models directory
+        String relativePsalmType;
         Boolean psalmTypeMoreSpecificThanNative;
         
         switch (prop.openApiType) {
@@ -196,36 +198,43 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                         case "date":
                         case "dateTime":
                             psalmType = "\\DateTime";
+                            relativePsalmType = psalmType;
                             psalmTypeMoreSpecificThanNative = false;
                             break;
                         default:
                             psalmType = null;
+                            relativePsalmType = null;
                             psalmTypeMoreSpecificThanNative = false;
                             break;
                     }
                 } else {
                     psalmType = null;
+                    relativePsalmType = null;
                     psalmTypeMoreSpecificThanNative = false;
                 }
 
                 if (psalmType == null) {
                     if (prop.minLength != null && prop.minLength > 0) {
                         psalmType = "non-empty-string";
+                        relativePsalmType = psalmType;
                         psalmTypeMoreSpecificThanNative = true;
                     } else {
                         psalmType = "string";
+                        relativePsalmType = psalmType;
                         psalmTypeMoreSpecificThanNative = false;
                     }
                 }
                 break;
             case "number":
                 psalmType = "float";
+                relativePsalmType = "float";
                 psalmTypeMoreSpecificThanNative = false;
                 break;
             case "integer":
                 String minimum = prop.minimum == null ? "min" : prop.exclusiveMinimum ? prop.minimum + 1 : prop.minimum;
                 String maximum = prop.maximum == null ? "max" : prop.exclusiveMaximum ? prop.maximum + 1 : prop.maximum;
                 psalmType = "int<" + minimum + ", " + maximum + ">";
+                relativePsalmType = psalmType;
                 if (minimum == "min" && maximum == "max") {
                     psalmTypeMoreSpecificThanNative = false;
                 } else {
@@ -234,19 +243,31 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
                 break;
             case "boolean":
                 psalmType = "bool";
+                relativePsalmType = psalmType;
                 psalmTypeMoreSpecificThanNative = false;
                 break;
             case "array":
-                psalmType = "array";
-                psalmTypeMoreSpecificThanNative = false;
+                if (prop.items != null) {
+                    Map<String, Object> resolvedPsalmType = resolvePsalmType(prop.items);
+                    String itemsRelativePsalmType = (String)resolvedPsalmType.get("x-php-relative-psalm-type");
+                    psalmType = "list<" + itemsRelativePsalmType + ">"; 
+                    relativePsalmType = psalmType;
+                    psalmTypeMoreSpecificThanNative = true;
+                } else {
+                    psalmType = "array";
+                    relativePsalmType = psalmType;
+                    psalmTypeMoreSpecificThanNative = false;
+                }
                 break;
             case "object":
                 psalmType = "object";
+                relativePsalmType = psalmType;
                 psalmTypeMoreSpecificThanNative = false;
                 break;
             default:
-                psalmType = null;
-                psalmTypeMoreSpecificThanNative = false;
+                psalmType = prop.dataType;
+                relativePsalmType = prop.baseType;
+                psalmTypeMoreSpecificThanNative = !prop.isModel;
                 break;
         }
 
@@ -255,6 +276,7 @@ public class PhpCustomGenerator extends AbstractPhpCodegen {
         }
 
         result.put("x-php-psalm-type", psalmType);
+        result.put("x-php-relative-psalm-type", relativePsalmType);
         result.put("x-php-psalm-type-more-specific-than-native", psalmTypeMoreSpecificThanNative);
 
         return result;
