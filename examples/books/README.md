@@ -79,6 +79,10 @@ Class | Method | HTTP request | Description
 
 - [Author](docs/Model/Author.md)
 - [Book](docs/Model/Book.md)
+- [BooksGETParameterData](docs/Model/BooksGETParameterData.md)
+- [BooksIdGETParameterData](docs/Model/BooksIdGETParameterData.md)
+- [Collection](docs/Model/Collection.md)
+- [Collection1](docs/Model/Collection1.md)
 
 ## Authorization
 All endpoints do not require authorization.
