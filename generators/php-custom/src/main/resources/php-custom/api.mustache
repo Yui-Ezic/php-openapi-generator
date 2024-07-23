@@ -36,10 +36,8 @@ namespace {{apiPackage}};
     {{/isDeprecated}}
      */
     public function {{operationId}}(
-    {{#allParams}}
-        {{^required}}?{{/required}}{{vendorExtensions.x-php-param-type}} ${{paramName}}{{^required}} = {{#defaultValue}}{{{.}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/required}},
-    {{/allParams}}
-    ): {{{vendorExtensions.x-php-return-type}}}
+{{>api_arg_declaration
+}}    ): {{{vendorExtensions.x-php-return-type}}}
     {
         throw new \Exception('Opeation {{operationId}} not implemented');
     }

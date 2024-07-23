@@ -23,8 +23,7 @@ class DefaultApi
      * @return \OpenAPI\Client\Model\BooksListResponse
      */
     public function booksGet(
-        ?int $offset = null,
-        ?int $limit = null,
+        \OpenAPI\Client\Model\BooksGETParameterData $parameters
     ): \OpenAPI\Client\Model\BooksListResponse
     {
         throw new \Exception('Opeation booksGet not implemented');
@@ -37,7 +36,7 @@ class DefaultApi
      * @return \OpenAPI\Client\Model\Book
      */
     public function booksIdGet(
-        string $id,
+        \OpenAPI\Client\Model\BooksIdGETParameterData $parameters
     ): \OpenAPI\Client\Model\Book
     {
         throw new \Exception('Opeation booksIdGet not implemented');

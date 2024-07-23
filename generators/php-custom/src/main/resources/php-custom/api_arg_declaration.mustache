@@ -1,0 +1,8 @@
+{{#vendorExtensions}}
+    {{#internal.hasParameterData}}
+        {{internal.parameterDataType}} $parameters{{#bodyParam}},{{/bodyParam}}
+    {{/internal.hasParameterData}}
+{{/vendorExtensions}}
+{{#bodyParam}}
+    {{dataType}} $requestContent
+{{/bodyParam}}
