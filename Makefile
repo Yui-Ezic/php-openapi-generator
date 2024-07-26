@@ -13,6 +13,9 @@ generate-examples:
 regenerate: compile-generator clear-examples run-generator
 regenerate-debug: compile-generator clear-examples run-generator-debug
 
+clear-cache:
+	docker-copmose down -v --remove-orphans
+
 compile-generator:
 	docker-compose run -w /local/generators/php-custom maven mvn package
 
