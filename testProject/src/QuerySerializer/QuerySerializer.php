@@ -2,23 +2,29 @@
 
 namespace App\QuerySerializer;
 
-use CuyZ\Valinor\Normalizer\Normalizer;
+use App\QuerySerializer\Transformer\Form;
+use App\QuerySerializer\Transformer\UrlEncode;
+use CuyZ\Valinor\MapperBuilder;
+use CuyZ\Valinor\Normalizer\Format;
 
 final readonly class QuerySerializer
 {
-    private Normalizer $normalizer;
-
-    public function __construct()
-    {
-        $this->normalizer = (new \CuyZ\Valinor\MapperBuilder())
-            ->normalizer(\CuyZ\Valinor\Normalizer\Format::array());
-    }
-
     public function serialize(object $query): string
     {
-        // TODO: array & objects serialization
         // TODO: Support "allowReserved: true"
-        $array = $this->normalizer->normalize($query);
-        return http_build_query(data: $array, encoding_type: PHP_QUERY_RFC3986);
+        $normalizer = (new MapperBuilder())
+            ->registerTransformer(new UrlEncode())
+            ->registerTransformer(new Form\ArrayExplode())
+            ->registerTransformer(new Form\ObjectExplode())
+            ->normalizer(Format::array());
+
+        $array = $normalizer->normalize($query);
+
+        $arrayForImplode = [];
+        foreach ($array as $key => $value) {
+            $arrayForImplode[$key] = $key . '=' . $value;
+        }
+
+        return implode("&", $arrayForImplode);
     }
 }
