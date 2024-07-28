@@ -3,6 +3,7 @@
 namespace App\QuerySerializer;
 
 use App\QuerySerializer\Query\Form;
+use App\QuerySerializer\Query\SpaceDelimited;
 use CuyZ\Valinor\MapperBuilder;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -67,10 +68,27 @@ $tests = [
             'nestedObject=id,1,value,foo',
         ]),
     ],
+    'SpaceDelimited, no explode, no allow reserved' => [
+        'query' => SpaceDelimited\NoExplode::class,
+        'allowReserved' => false,
+        'expected' => implode('&', [
+            'stringList=' . 'first' . '%20' . 'second',
+        ]),
+    ],
+    'SpaceDelimited, no explode, allow reserved' => [
+        'query' => SpaceDelimited\NoExplode::class,
+        'allowReserved' => true,
+        'expected' => implode('&', [
+            'stringList=' . 'first' . '%20' . 'second',
+        ]),
+    ],
 ];
 
 foreach ($tests as $name => $test) {
-    $query = (new MapperBuilder())->mapper()->map($test['query'], $queryArray);
+    $query = (new MapperBuilder())
+        ->allowSuperfluousKeys()
+        ->mapper()
+        ->map($test['query'], $queryArray);
 
     $actual = $serializer->serialize(
         query: $query,

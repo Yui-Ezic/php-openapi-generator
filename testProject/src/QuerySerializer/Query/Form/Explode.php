@@ -3,7 +3,7 @@
 namespace App\QuerySerializer\Query\Form;
 
 use App\QuerySerializer\NestedObject;
-use App\QuerySerializer\Transformer\Form\ArrayExplode;
+use App\QuerySerializer\Transformer\ArrayExplode;
 use App\QuerySerializer\Transformer\Form\ObjectExplode;
 
 readonly class Explode
