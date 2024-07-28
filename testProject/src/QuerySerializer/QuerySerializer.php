@@ -20,9 +20,7 @@ final readonly class QuerySerializer
         // For ObjectExplode attribute
         $mapperBuilder = $mapperBuilder->registerTransformer(new ExplodeValues());
 
-        $normalizer = $mapperBuilder->normalizer(Format::array());
-
-        $array = $normalizer->normalize($query);
+        $array = $mapperBuilder->normalizer(Format::array())->normalize($query);
 
         $arrayForImplode = [];
         foreach ($array as $key => $value) {
