@@ -2,6 +2,7 @@
 
 namespace App\QuerySerializer;
 
+use App\QuerySerializer\Transformer\ExplodeValues;
 use App\QuerySerializer\Transformer\Form;
 use App\QuerySerializer\Transformer\UrlEncode;
 use CuyZ\Valinor\MapperBuilder;
@@ -9,7 +10,7 @@ use CuyZ\Valinor\Normalizer\Format;
 
 final readonly class QuerySerializer
 {
-    public function serialize(object $query, bool $allowReserved = false, bool $explode = true): string
+    public function serialize(object $query, bool $allowReserved = false): string
     {
         $mapperBuilder = new MapperBuilder();
 
@@ -17,15 +18,8 @@ final readonly class QuerySerializer
             $mapperBuilder = $mapperBuilder->registerTransformer(new UrlEncode());
         }
 
-        if ($explode === true) {
-            $mapperBuilder = $mapperBuilder
-                ->registerTransformer(new Form\ArrayExplode())
-                ->registerTransformer(new Form\ObjectExplode());
-        } else {
-            $mapperBuilder = $mapperBuilder
-                ->registerTransformer(new Form\ArrayNoExplode())
-                ->registerTransformer(new Form\ObjectNoExplode());
-        }
+        // For ObjectExplode attribute
+        $mapperBuilder = $mapperBuilder->registerTransformer(new ExplodeValues());
 
         $normalizer = $mapperBuilder->normalizer(Format::array());
 

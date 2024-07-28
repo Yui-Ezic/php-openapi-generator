@@ -2,30 +2,24 @@
 
 namespace App\QuerySerializer\Transformer\Form;
 
+use Attribute;
+use CuyZ\Valinor\Normalizer\AsTransformer;
+
+/**
+ * THIS TRANSFORMER MUST WORK IN TANDEM WITH App\QuerySerializer\Transformer\ExplodeValues
+ * TODO: find other method to do object explode, without App\QuerySerializer\Transformer\ExplodeValues
+ */
+#[AsTransformer]
+#[Attribute(Attribute::TARGET_PROPERTY)]
 readonly class ObjectExplode
 {
-    public function __invoke(object $object, callable $next): mixed
+    public const string EXPLODE_FLAG = '-explode';
+
+    /**
+     * App\QuerySerializer\Transformer\ExplodeValues search for EXPLODE_FLAG keys and explode it
+     */
+    public function normalizeKey(string $value): string
     {
-        $result = $next();
-
-        if (!is_array($result)) {
-            return $result;
-        }
-
-        $exploded = [];
-
-        foreach ($result as $key => $value) {
-            if (is_array($value) && !array_is_list($value)) {
-                // Remove object name, and explode object properties
-                foreach ($value as $itemKey => $itemValue) {
-                    $exploded[$itemKey] = $itemValue;
-                }
-            } else {
-                $exploded[$key] = $value;
-            }
-        }
-
-        return $exploded;
-
+        return self::EXPLODE_FLAG;
     }
 }

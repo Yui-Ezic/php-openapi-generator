@@ -2,9 +2,14 @@
 
 namespace App\QuerySerializer\Transformer\Form;
 
+use Attribute;
+use CuyZ\Valinor\Normalizer\AsTransformer;
+
+#[AsTransformer]
+#[Attribute(Attribute::TARGET_PROPERTY)]
 class ObjectNoExplode
 {
-    public function __invoke(object $object, callable $next): mixed
+    public function normalize(object $object, callable $next): mixed
     {
         $result = $next();
 
@@ -12,20 +17,10 @@ class ObjectNoExplode
             return $result;
         }
 
-        $newResult = [];
-
+        $newValue = '';
         foreach ($result as $key => $value) {
-            if (is_array($value) && !array_is_list($value)) {
-                $newValue = '';
-                foreach ($value as $itemKey => $itemValue) {
-                    $newValue .= $itemKey . ',' . $itemValue . ',';
-                }
-                $newResult[$key] = substr($newValue, 0, -1);
-            } else {
-                $newResult[$key] = $value;
-            }
+            $newValue .= $key . ',' . $value . ',';
         }
-
-        return $newResult;
+        return substr($newValue, 0, -1);
     }
 }

@@ -2,42 +2,38 @@
 
 namespace App\QuerySerializer\Transformer\Form;
 
+use Attribute;
+use CuyZ\Valinor\Normalizer\AsTransformer;
+
+#[AsTransformer]
+#[Attribute(Attribute::TARGET_PROPERTY)]
 readonly class ArrayExplode
 {
     public function __construct(
-        private string $delimiter = '&'
+        // TODO: Stupid hack because idk how to get key value in normalize() method.
+        private string $key,
+        private string $delimiter = '&',
     )
     {
     }
 
-    public function __invoke(object $object, callable $next): mixed
+    /**
+     * @param non-empty-list $array
+     */
+    public function normalize(array $array, callable $next): string
     {
-        $result = $next();
+        $result = null;
 
-        if (!is_array($result)) {
-            return $result;
-        }
-
-        $exploded = [];
-
-        foreach ($result as $key => $value) {
-            $explodedValue = null;
-
-            if (is_array($value) && array_is_list($value)) {
-                foreach ($value as $valueItem) {
-                    if ($explodedValue === null) {
-                        // Skip key in first value, cause this key will be added by normalizer
-                        $explodedValue = $valueItem;
-                    } else {
-                        $explodedValue .= $this->delimiter . $key . '=' . $valueItem;
-                    }
-                }
+        foreach ($next() as $value) {
+            if ($result === null) {
+                // Skip key in first value, cause this key will be added by normalizer
+                $result = $value;
+            } else {
+                $result .= $this->delimiter . $this->key . '=' . $value;
             }
-
-            $exploded[$key] = $explodedValue !== null ? $explodedValue : $value;
         }
 
-        return $exploded;
+        return $result;
 
     }
 }

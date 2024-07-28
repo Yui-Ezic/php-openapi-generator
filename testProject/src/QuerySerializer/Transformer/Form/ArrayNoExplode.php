@@ -2,14 +2,18 @@
 
 namespace App\QuerySerializer\Transformer\Form;
 
+use Attribute;
+use CuyZ\Valinor\Normalizer\AsTransformer;
+
+#[AsTransformer]
+#[Attribute(Attribute::TARGET_PROPERTY)]
 class ArrayNoExplode
 {
-    public function __invoke(array $array, callable $next): mixed
+    /**
+     * @param non-empty-list $array
+     */
+    public function normalize(array $array, callable $next): string
     {
-        if (array_is_list($array)) {
-            return implode(',', $next());
-        }
-        return $next();
+        return implode(',', $next());
     }
-
 }

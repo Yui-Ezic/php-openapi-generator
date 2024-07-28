@@ -2,24 +2,27 @@
 
 namespace App\QuerySerializer;
 
+use App\QuerySerializer\Query\Form;
+use CuyZ\Valinor\MapperBuilder;
+
 require __DIR__ . '/../../vendor/autoload.php';
 
-$query = new Query(
-    int: 3,
-    float: 3.14,
-    string: 'hello world',
-    stringList: ['first', 'second'],
-    nestedObject: new NestedObject(
-        id: 1,
-        value: 'foo'
-    )
-);
+$queryArray = [
+    'int' => 3,
+    'float' => 3.14,
+    'string' => 'hello world',
+    'stringList' => ['first', 'second'],
+    'nestedObject' => [
+        'id' => 1,
+        'value' => 'foo'
+    ]
+];
 
 $serializer = new QuerySerializer();
 
 $tests = [
     'Form, explode, no allow reserved' => [
-        'explode' => true,
+        'query' => Form\Explode::class,
         'allowReserved' => false,
         'expected' => implode('&', [
             'int=3',
@@ -31,7 +34,7 @@ $tests = [
         ]),
     ],
     'Form, explode, allow reserved' => [
-        'explode' => true,
+        'query' => Form\Explode::class,
         'allowReserved' => true,
         'expected' => implode('&', [
             'int=3',
@@ -43,7 +46,7 @@ $tests = [
         ]),
     ],
     'Form, no explode, no allow reserved' => [
-        'explode' => false,
+        'query' => Form\NoExplode::class,
         'allowReserved' => false,
         'expected' => implode('&', [
             'int=3',
@@ -54,7 +57,7 @@ $tests = [
         ]),
     ],
     'Form, no explode, allow reserved' => [
-        'explode' => false,
+        'query' => Form\NoExplode::class,
         'allowReserved' => true,
         'expected' => implode('&', [
             'int=3',
@@ -67,10 +70,11 @@ $tests = [
 ];
 
 foreach ($tests as $name => $test) {
+    $query = (new MapperBuilder())->mapper()->map($test['query'], $queryArray);
+
     $actual = $serializer->serialize(
-        query:$query,
+        query: $query,
         allowReserved: $test['allowReserved'],
-        explode: $test['explode'],
     );
     $decodedActual = rawurldecode($actual);
 
