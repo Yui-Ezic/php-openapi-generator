@@ -9,7 +9,7 @@ use CuyZ\Valinor\Normalizer\Format;
 
 final readonly class QuerySerializer
 {
-    public function serialize(object $query, bool $allowReserved = false): string
+    public function serialize(object $query, bool $allowReserved = false, bool $explode = true): string
     {
         $mapperBuilder = new MapperBuilder();
 
@@ -17,10 +17,17 @@ final readonly class QuerySerializer
             $mapperBuilder = $mapperBuilder->registerTransformer(new UrlEncode());
         }
 
-        $normalizer = $mapperBuilder
-            ->registerTransformer(new Form\ArrayExplode())
-            ->registerTransformer(new Form\ObjectExplode())
-            ->normalizer(Format::array());
+        if ($explode === true) {
+            $mapperBuilder = $mapperBuilder
+                ->registerTransformer(new Form\ArrayExplode())
+                ->registerTransformer(new Form\ObjectExplode());
+        } else {
+            $mapperBuilder = $mapperBuilder
+                ->registerTransformer(new Form\ArrayNoExplode())
+                ->registerTransformer(new Form\ObjectNoExplode());
+        }
+
+        $normalizer = $mapperBuilder->normalizer(Format::array());
 
         $array = $normalizer->normalize($query);
 

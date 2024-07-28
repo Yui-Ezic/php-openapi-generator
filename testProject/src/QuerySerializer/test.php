@@ -18,7 +18,8 @@ $query = new Query(
 $serializer = new QuerySerializer();
 
 $tests = [
-    'Simple, explode, no allow reserved' => [
+    'Form, explode, no allow reserved' => [
+        'explode' => true,
         'allowReserved' => false,
         'expected' => implode('&', [
             'int=3',
@@ -29,7 +30,8 @@ $tests = [
             'value=foo'
         ]),
     ],
-    'Simple, explode, allow reserved' => [
+    'Form, explode, allow reserved' => [
+        'explode' => true,
         'allowReserved' => true,
         'expected' => implode('&', [
             'int=3',
@@ -39,13 +41,36 @@ $tests = [
             'id=1',
             'value=foo'
         ]),
-    ]
+    ],
+    'Form, no explode, no allow reserved' => [
+        'explode' => false,
+        'allowReserved' => false,
+        'expected' => implode('&', [
+            'int=3',
+            'float=3.14',
+            'string=' . rawurlencode('hello world'),
+            'stringList=first,second',
+            'nestedObject=id,1,value,foo',
+        ]),
+    ],
+    'Form, no explode, allow reserved' => [
+        'explode' => false,
+        'allowReserved' => true,
+        'expected' => implode('&', [
+            'int=3',
+            'float=3.14',
+            'string=' . 'hello world',
+            'stringList=first,second',
+            'nestedObject=id,1,value,foo',
+        ]),
+    ],
 ];
 
 foreach ($tests as $name => $test) {
     $actual = $serializer->serialize(
         query:$query,
-        allowReserved: $test['allowReserved']
+        allowReserved: $test['allowReserved'],
+        explode: $test['explode'],
     );
     $decodedActual = rawurldecode($actual);
 
