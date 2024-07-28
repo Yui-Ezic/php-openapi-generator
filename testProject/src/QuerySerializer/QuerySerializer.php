@@ -9,11 +9,15 @@ use CuyZ\Valinor\Normalizer\Format;
 
 final readonly class QuerySerializer
 {
-    public function serialize(object $query): string
+    public function serialize(object $query, bool $allowReserved = false): string
     {
-        // TODO: Support "allowReserved: true"
-        $normalizer = (new MapperBuilder())
-            ->registerTransformer(new UrlEncode())
+        $mapperBuilder = new MapperBuilder();
+
+        if ($allowReserved === false) {
+            $mapperBuilder = $mapperBuilder->registerTransformer(new UrlEncode());
+        }
+
+        $normalizer = $mapperBuilder
             ->registerTransformer(new Form\ArrayExplode())
             ->registerTransformer(new Form\ObjectExplode())
             ->normalizer(Format::array());
