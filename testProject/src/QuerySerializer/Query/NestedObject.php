@@ -1,6 +1,6 @@
 <?php
 
-namespace App\QuerySerializer;
+namespace App\QuerySerializer\Query;
 
 readonly class NestedObject
 {
