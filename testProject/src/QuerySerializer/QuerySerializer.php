@@ -13,12 +13,10 @@ final readonly class QuerySerializer
     {
         $mapperBuilder = new MapperBuilder();
 
-        if ($allowReserved === false) {
-            $mapperBuilder = $mapperBuilder->registerTransformer(new UrlEncode());
-        }
-
-        // For ObjectExplode attribute
-        $mapperBuilder = $mapperBuilder->registerTransformer(new ExplodeValues());
+        $mapperBuilder = $mapperBuilder
+            ->registerTransformer(new UrlEncode($allowReserved))
+            // For ObjectExplode attribute
+            ->registerTransformer(new ExplodeValues());
 
         $array = $mapperBuilder->normalizer(Format::array())->normalize($query);
 

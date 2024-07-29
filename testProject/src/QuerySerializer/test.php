@@ -4,6 +4,7 @@ namespace App\QuerySerializer;
 
 use App\QuerySerializer\Query\Form;
 use App\QuerySerializer\Query\SpaceDelimited;
+use App\QuerySerializer\Query\StringValue;
 use CuyZ\Valinor\MapperBuilder;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -21,14 +22,28 @@ $queryArray = [
 
 $serializer = new QuerySerializer();
 
+$reserved = "/?#[]@!$&'()*+,;=";
+$shouldBeEncoded = ' |^ёі';
+$unreserved = '-._~' . 'Ab09';
+
 $tests = [
+    'allowReserved=true encode everything except reserved' => [
+        'query' => new StringValue($unreserved . $reserved . $shouldBeEncoded),
+        'allowReserved' => true,
+        'expected' => 'value=' . $unreserved . $reserved . rawurlencode($shouldBeEncoded)
+    ],
+    'allowReserved=false encode everything' => [
+        'query' => new StringValue($unreserved . $reserved . $shouldBeEncoded),
+        'allowReserved' => false,
+        'expected' => 'value=' . $unreserved . rawurlencode($reserved . $shouldBeEncoded)
+    ],
     'Form, explode, no allow reserved' => [
         'query' => Form\Explode::class,
         'allowReserved' => false,
         'expected' => implode('&', [
             'int=3',
             'float=3.14',
-            'string=' . rawurlencode('hello world'),
+            'string=' . 'hello' . '%20' . 'world',
             'stringList=first&stringList=second',
             'id=1',
             'value=foo'
@@ -40,7 +55,7 @@ $tests = [
         'expected' => implode('&', [
             'int=3',
             'float=3.14',
-            'string=hello world',
+            'string=' . 'hello' . '%20' . 'world',
             'stringList=first&stringList=second',
             'id=1',
             'value=foo'
@@ -52,7 +67,7 @@ $tests = [
         'expected' => implode('&', [
             'int=3',
             'float=3.14',
-            'string=' . rawurlencode('hello world'),
+            'string=' . 'hello' . '%20' . 'world',
             'stringList=first,second',
             'nestedObject=id,1,value,foo',
         ]),
@@ -63,7 +78,7 @@ $tests = [
         'expected' => implode('&', [
             'int=3',
             'float=3.14',
-            'string=' . 'hello world',
+            'string=' . 'hello' . '%20' . 'world',
             'stringList=first,second',
             'nestedObject=id,1,value,foo',
         ]),
@@ -85,10 +100,14 @@ $tests = [
 ];
 
 foreach ($tests as $name => $test) {
-    $query = (new MapperBuilder())
-        ->allowSuperfluousKeys()
-        ->mapper()
-        ->map($test['query'], $queryArray);
+    if (is_string($test['query'])) {
+        $query = (new MapperBuilder())
+            ->allowSuperfluousKeys()
+            ->mapper()
+            ->map($test['query'], $queryArray);
+    } else {
+        $query = $test['query'];
+    }
 
     $actual = $serializer->serialize(
         query: $query,
