@@ -6,6 +6,40 @@ info:
 servers:
   - url: 'https://example.com'
 paths:
+  '/resources':
+    get:
+      parameters:
+        - in: query
+          name: required_not_nullable
+          required: true
+          schema:
+            type: string
+            nullable: false
+        - in: query
+          name: required_nullable
+          required: true
+          schema:
+            type: string
+            nullable: true
+        - in: query
+          name: not_required_not_nullable
+          required: false
+          schema:
+            type: string
+            nullable: false
+        - in: query
+          name: not_required_nullable
+          required: false
+          schema:
+            type: string
+            nullable: true
+      responses:
+        "200":
+          description: Return list of books
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceList'
   '/resources/{id}':
     get:
       parameters:
@@ -24,6 +58,10 @@ paths:
 
 components:
   schemas:
+    ResourceList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Resource'
     Resource:
       type: object
       required:
